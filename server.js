@@ -4,7 +4,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 
 const ROOT = path.resolve(process.argv[2] || '.');
 const PORT = Number(process.env.PORT) || 5180;
@@ -49,6 +49,17 @@ http.createServer((req, res) => {
     if (url.searchParams.has('rescan')) files = scan();
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     return res.end(JSON.stringify({ root: ROOT, files }));
+  }
+
+  // Abre el Explorador de Windows con el archivo seleccionado.
+  if (url.pathname === '/api/reveal' && req.method === 'POST') {
+    const abs = path.resolve(ROOT, url.searchParams.get('p') || '');
+    if (!inside(ROOT, abs) || !fs.existsSync(abs)) { res.writeHead(404); return res.end(); }
+    if (process.platform !== 'win32') { res.writeHead(501); return res.end(); }
+    const isDir = fs.statSync(abs).isDirectory();
+    spawn('explorer.exe', [isDir ? `"${abs}"` : `/select,"${abs}"`], { windowsVerbatimArguments: true, detached: true, stdio: 'ignore' }).unref();
+    res.writeHead(204);
+    return res.end();
   }
 
   if (url.pathname === '/api/file') {

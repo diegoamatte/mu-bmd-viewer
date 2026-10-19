@@ -101,8 +101,19 @@ function setMsg(text, err) {
   m.classList.toggle('err', !!err);
 }
 
+let currentPath = null;
+let modalPath = null;
+
+async function reveal(rel) {
+  if (!rel) return;
+  const r = await fetch('/api/reveal?p=' + encodeURIComponent(rel), { method: 'POST' });
+  if (!r.ok) setMsg(r.status === 501 ? 'Abrir la carpeta solo funciona en Windows' : 'No se pudo abrir la carpeta', true);
+}
+
 async function openModel(rel) {
   const tok = ++loadToken;
+  currentPath = rel;
+  $('#reveal').disabled = false;
   setMsg('Cargando…');
   $('#title').textContent = baseOf(rel);
   $('#sub').textContent = dirOf(rel);
@@ -241,6 +252,7 @@ function openModal(path, tex) {
   ctx.clearRect(0, 0, c.width, c.height);
   ctx.drawImage(tex.canvas, 0, 0, tex.w, tex.h, 0, 0, tex.w, tex.h);
   $('#mtitle').textContent = path;
+  modalPath = path;
   $('#minfo').textContent = `${tex.w}×${tex.h}${tex.hasAlpha ? ' · con transparencia' : ''}${tex.warns.length ? ' · ' + tex.warns.join(' · ') : ''}`;
   $('#modal').hidden = false;
 }
@@ -335,6 +347,8 @@ async function init() {
   };
   $('#bg').dispatchEvent(new Event('change'));
   $('#reset').onclick = () => viewer.resetView();
+  $('#reveal').onclick = () => reveal(currentPath);
+  $('#mreveal').onclick = () => reveal(modalPath);
   $('#mclose').onclick = () => { $('#modal').hidden = true; };
   $('#modal').onclick = (e) => { if (e.target.id === 'modal') $('#modal').hidden = true; };
 
