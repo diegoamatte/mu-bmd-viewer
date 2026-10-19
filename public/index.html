@@ -17,7 +17,10 @@
   #panel { border-left: 1px solid var(--line); overflow-y: auto; }
   header { padding: 12px 12px 6px; }
   h1 { font-size: 15px; margin: 0 0 2px; }
-  #root { color: var(--dim); font-size: 11px; word-break: break-all; }
+  #root { color: var(--dim); font-size: 11px; word-break: break-all; margin-top: 6px; }
+  .rootrow { display: flex; gap: 6px; margin-top: 8px; }
+  #pick { flex: none; }
+  #recent { flex: 1; min-width: 0; }
   #q { margin: 6px 12px; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--text); }
   #count { color: var(--dim); font-size: 11px; padding: 0 12px 6px; }
   #list { overflow-y: auto; flex: 1; padding-bottom: 20px; }
@@ -71,7 +74,14 @@
 <body>
 <div id="app">
   <aside id="side">
-    <header><h1>Visor BMD · MU</h1><div id="root">cargando…</div></header>
+    <header>
+      <h1>Visor BMD · MU</h1>
+      <div class="rootrow">
+        <button id="pick" title="Elegir la carpeta base de un pack">📁 Elegir carpeta…</button>
+        <select id="recent" title="Carpetas recientes"></select>
+      </div>
+      <div id="root">cargando…</div>
+    </header>
     <input id="q" placeholder="Buscar: wing, set, pet, npc… (↑ ↓ para recorrer)" autocomplete="off">
     <div id="count"></div>
     <div id="list"></div>

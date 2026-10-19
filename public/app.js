@@ -291,6 +291,65 @@ function tick(now) {
   requestAnimationFrame(tick);
 }
 
+// ---------- Carpeta base ----------
+
+// Carga la lista de archivos de una carpeta y deja el visor en blanco.
+function applyIndex(j) {
+  files = j.files || [];
+  bmds = files.filter(f => extOf(f) === 'bmd').sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+  byStem = new Map();
+  for (const f of files) {
+    if (!TEX_EXT.has(extOf(f))) continue;
+    const s = stemOf(f);
+    if (!byStem.has(s)) byStem.set(s, []);
+    byStem.get(s).push(f);
+  }
+  texCache.clear();
+  loadToken++;
+  selected = -1;
+  currentPath = null;
+  anim.model = null;
+  viewer.clear();
+  fillActions(null);
+  $('#reveal').disabled = true;
+  $('#title').textContent = '';
+  $('#sub').textContent = '';
+  $('#warn').innerHTML = '<li class="ok">Sin modelo cargado</li>';
+  $('#meshes').innerHTML = '';
+  $('#folderTex').innerHTML = '';
+  $('#q').value = '';
+
+  $('#root').textContent = j.root ? `${j.root} · ${files.length} archivos` : 'Ninguna carpeta elegida';
+  const recent = j.recent || [];
+  $('#recent').innerHTML = '<option value="">Recientes…</option>' +
+    recent.map(p => `<option value="${esc(p)}">${esc(baseOf(p.replace(/\\/g, '/')) || p)} — ${esc(p)}</option>`).join('');
+  $('#recent').disabled = !recent.length;
+
+  renderList();
+  if (!j.root) setMsg('Tocá "📁 Elegir carpeta…" y elegí la carpeta base de un pack');
+  else if (!bmds.length) setMsg('Esta carpeta no tiene modelos .bmd');
+  else setMsg('Elegí un modelo de la lista');
+}
+
+// dir = null abre el selector de carpetas de Windows; si no, usa esa ruta.
+async function changeRoot(dir) {
+  const btn = $('#pick');
+  btn.disabled = true;
+  setMsg(dir ? 'Leyendo la carpeta…' : 'Elegí la carpeta en la ventana de Windows (puede quedar detrás del navegador)…');
+  try {
+    const r = await fetch('/api/root' + (dir ? '?path=' + encodeURIComponent(dir) : ''), { method: 'POST' });
+    const j = await r.json();
+    if (j.error) setMsg(j.error, true);
+    else if (j.cancelled) setMsg(bmds.length ? 'Elegí un modelo de la lista' : 'No se eligió ninguna carpeta');
+    else applyIndex(j);
+  } catch {
+    setMsg('No se pudo cambiar la carpeta (¿se cerró el visor?)', true);
+  } finally {
+    btn.disabled = false;
+    $('#recent').value = '';
+  }
+}
+
 // ---------- Inicio ----------
 
 async function init() {
@@ -301,17 +360,10 @@ async function init() {
     return;
   }
   const r = await fetch('/api/index');
-  const j = await r.json();
-  files = j.files;
-  $('#root').textContent = j.root;
-  bmds = files.filter(f => extOf(f) === 'bmd').sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-  for (const f of files) {
-    if (!TEX_EXT.has(extOf(f))) continue;
-    const s = stemOf(f);
-    if (!byStem.has(s)) byStem.set(s, []);
-    byStem.get(s).push(f);
-  }
-  renderList();
+  applyIndex(await r.json());
+
+  $('#pick').onclick = () => changeRoot(null);
+  $('#recent').onchange = (e) => { if (e.target.value) changeRoot(e.target.value); };
 
   let qTimer;
   $('#q').addEventListener('input', () => { clearTimeout(qTimer); qTimer = setTimeout(renderList, 120); });

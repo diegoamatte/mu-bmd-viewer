@@ -8,11 +8,11 @@ No usa librerías ni descarga nada: un servidor Node chico que solo lee archivos
 
 Necesita [Node.js](https://nodejs.org/).
 
-```
-node server.js "C:\ruta\al\pack"
-```
+Doble clic en `abrir-visor.bat` (o `node server.js`). Se abre `http://127.0.0.1:5180/` en el navegador. Cerrá la ventana de la consola para apagarlo.
 
-O doble clic en `abrir-visor.bat` (o arrastrá una carpeta encima). Se abre `http://127.0.0.1:5180/` en el navegador. Cerrá la ventana de la consola para apagarlo.
+Con **📁 Elegir carpeta…** elegís la carpeta base de cualquier pack y el visor lista todos sus modelos, incluidas las subcarpetas. Las carpetas usadas quedan en **Recientes**, y al abrir el visor arranca con la última (se guarda en `config.json`, que no se sube al repo).
+
+También se puede pasar la carpeta al arrancar: `node server.js "C:\ruta\al\pack"`, o arrastrarla encima de `abrir-visor.bat`.
 
 ## Qué hace
 

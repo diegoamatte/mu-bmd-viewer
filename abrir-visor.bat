@@ -1,7 +1,6 @@
 @echo off
-rem Abre el visor. Podés arrastrar cualquier carpeta encima de este archivo para verla.
+rem Abre el visor con la ultima carpeta usada. La carpeta se cambia desde el visor
+rem (boton "Elegir carpeta"), o arrastrando una carpeta encima de este archivo.
 cd /d "%~dp0"
-set "PACK=%~1"
-if "%PACK%"=="" set "PACK=C:\Users\diego\Downloads\ULTR4_P4CK_SK1NS_mu"
-node server.js "%PACK%"
+node server.js "%~1"
 pause
