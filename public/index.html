@@ -17,7 +17,10 @@
   #panel { border-left: 1px solid var(--line); overflow-y: auto; }
   header { padding: 12px 12px 6px; }
   h1 { font-size: 15px; margin: 0 0 2px; }
-  #root { color: var(--dim); font-size: 11px; word-break: break-all; }
+  #root { color: var(--dim); font-size: 11px; word-break: break-all; margin-top: 6px; }
+  .rootrow { display: flex; gap: 6px; margin-top: 8px; }
+  #pick { flex: none; }
+  #recent { flex: 1; min-width: 0; }
   #q { margin: 6px 12px; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--text); }
   #count { color: var(--dim); font-size: 11px; padding: 0 12px 6px; }
   #list { overflow-y: auto; flex: 1; padding-bottom: 20px; }
@@ -38,7 +41,9 @@
   #bar label { display: flex; align-items: center; gap: 6px; color: var(--dim); }
   select, button { background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 5px; padding: 4px 8px; font: inherit; }
   button { cursor: pointer; }
-  button:hover { border-color: var(--accent); }
+  button:hover:not(:disabled) { border-color: var(--accent); }
+  button:disabled { opacity: .45; cursor: default; }
+  .mhead span:last-child { white-space: nowrap; }
   input[type=range] { width: 110px; }
   section { padding: 10px 12px; border-bottom: 1px solid var(--line); }
   h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--dim); margin: 0 0 8px; }
@@ -69,7 +74,14 @@
 <body>
 <div id="app">
   <aside id="side">
-    <header><h1>Visor BMD · MU</h1><div id="root">cargando…</div></header>
+    <header>
+      <h1>Visor BMD · MU</h1>
+      <div class="rootrow">
+        <button id="pick" title="Elegir la carpeta base de un pack">📁 Elegir carpeta…</button>
+        <select id="recent" title="Carpetas recientes"></select>
+      </div>
+      <div id="root">cargando…</div>
+    </header>
     <input id="q" placeholder="Buscar: wing, set, pet, npc… (↑ ↓ para recorrer)" autocomplete="off">
     <div id="count"></div>
     <div id="list"></div>
@@ -90,6 +102,7 @@
       <label title="Dibuja todas las texturas sin transparencia en modo brillo: el negro desaparece, como las alas y efectos en el juego"><input id="bright" type="checkbox"> Negro = brillo</label>
       <label>Fondo <select id="bg"><option value="#2b3038">Gris</option><option value="#0b0c0f">Negro</option><option value="#7e8a99">Claro</option><option value="#2f6a3a">Verde</option></select></label>
       <button id="reset">Centrar</button>
+      <button id="reveal" disabled title="Abre la carpeta del modelo en el Explorador, con el archivo seleccionado">📂 Abrir carpeta</button>
     </div>
   </main>
 
@@ -102,7 +115,7 @@
 
 <div id="modal" hidden>
   <div class="box">
-    <div class="mhead"><span id="mtitle"></span><button id="mclose">✕</button></div>
+    <div class="mhead"><span id="mtitle"></span><span><button id="mreveal">📂 Abrir carpeta</button> <button id="mclose">✕</button></span></div>
     <div class="mimg"><canvas id="mcanvas"></canvas></div>
     <div id="minfo"></div>
   </div>
